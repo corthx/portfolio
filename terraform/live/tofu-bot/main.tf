@@ -24,11 +24,11 @@ provider "gitlab" {
 }
 
 module "bot" {
-  source  = "gitlab.com/curs3_w4ll/service-account/gitlab"
+  source  = "gitlab.com/corthx/service-account/gitlab"
   version = "0.0.1"
 
   gitlab_base_url = local.gitlab_base_url
-  project         = "curs3_w4ll/portfolio"
+  project         = "corthx/portfolio"
   name            = "Tofu Bot"
   username        = "portfolio-tofu-bot"
   access_level    = "reporter"

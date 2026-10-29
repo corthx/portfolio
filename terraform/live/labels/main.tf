@@ -12,7 +12,7 @@ terraform {
 }
 
 locals {
-  project = "curs3_w4ll/portfolio"
+  project = "corthx/portfolio"
 }
 
 provider "gitlab" {
@@ -20,7 +20,7 @@ provider "gitlab" {
 }
 
 module "labels" {
-  source  = "gitlab.com/curs3_w4ll/label/gitlab"
+  source  = "gitlab.com/corthx/label/gitlab"
   version = "0.0.1"
 
   project = local.project

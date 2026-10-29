@@ -16,10 +16,10 @@ provider "gitlab" {
 }
 
 module "schedule" {
-  source  = "gitlab.com/curs3_w4ll/pipeline-schedule/gitlab"
+  source  = "gitlab.com/corthx/pipeline-schedule/gitlab"
   version = "0.0.1"
 
-  project       = "curs3_w4ll/portfolio"
+  project       = "corthx/portfolio"
   description   = "📋 Dependency digest"
   cron          = "30 9 * * 1" # every Monday 09:30, Paris time
   cron_timezone = "Europe/Paris"
