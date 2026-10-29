@@ -1,13 +1,13 @@
 [tools]
 node = "24.21.0"
-markdownlint-cli2 = { version = "0.23.3", depends = ["node"] }
+markdownlint-cli2 = { version = "0.24.0", depends = ["node"] }
 opentofu = "1.12.6"
-python = "3.14.8"
-pipx = { version = "1.17.11", depends = ["python"] }
+python = "3.15.2"
+pipx = { version = "1.18.10", depends = ["python"] }
 "pipx:yamllint" = { version = "1.38.0", depends = ["pipx"] }
-pre-commit = { version = "4.6.2", depends = ["python"] }
+pre-commit = { version = "4.7.0", depends = ["python"] }
 shellcheck = "0.11.0"
-tflint = "0.64.0"
+tflint = "0.65.0"
 
 [task_config]
 includes = [
