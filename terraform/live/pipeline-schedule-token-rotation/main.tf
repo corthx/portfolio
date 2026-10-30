@@ -15,7 +15,7 @@ provider "gitlab" {
   base_url = "https://gitlab.com"
 }
 
-module "pipeline_schedule" {
+module "schedule" {
   source  = "gitlab.com/corthx/pipeline-schedule/gitlab"
   version = "0.0.3"
 

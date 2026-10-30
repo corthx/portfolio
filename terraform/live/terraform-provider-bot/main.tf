@@ -19,7 +19,7 @@ provider "gitlab" {
   base_url = local.gitlab_base_url
 }
 
-module "service_account" {
+module "bot" {
   source  = "gitlab.com/corthx/service-account/gitlab"
   version = "0.0.3"
 
