@@ -10,7 +10,7 @@ cd "$(git rev-parse --show-toplevel)"
 # shellcheck source=.gitlab/git-hooks/colors.sh
 source .gitlab/git-hooks/colors.sh
 
-readonly project_url="https://gitlab.com/curs3_w4ll/portfolio"
+readonly project_url="https://gitlab.com/corthx/portfolio"
 readonly convention_url="${project_url}#commit-convention"
 readonly gitmoji_url="https://gitmoji.dev"
 

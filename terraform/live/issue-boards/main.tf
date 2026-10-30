@@ -16,11 +16,11 @@ provider "gitlab" {
 }
 
 module "boards" {
-  source  = "gitlab.com/curs3_w4ll/issue-board/gitlab"
-  version = "0.0.2"
+  source  = "gitlab.com/corthx/issue-board/gitlab"
+  version = "0.0.3"
 
   scope   = "project"
-  project = "curs3_w4ll/portfolio"
+  project = "corthx/portfolio"
 
   boards = {
     "Development" = {

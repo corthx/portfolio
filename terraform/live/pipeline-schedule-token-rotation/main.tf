@@ -16,10 +16,10 @@ provider "gitlab" {
 }
 
 module "schedule" {
-  source  = "gitlab.com/curs3_w4ll/pipeline-schedule/gitlab"
-  version = "0.0.1"
+  source  = "gitlab.com/corthx/pipeline-schedule/gitlab"
+  version = "0.0.3"
 
-  project       = "curs3_w4ll/portfolio"
+  project       = "corthx/portfolio"
   description   = "🔄 Access tokens rotation"
   cron          = "0 9 * * 1" # every Monday 09:00 Paris time — well inside the units' 14-day rotate_before_days window
   cron_timezone = "Europe/Paris"
