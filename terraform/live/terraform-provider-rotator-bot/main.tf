@@ -19,9 +19,9 @@ provider "gitlab" {
   base_url = local.gitlab_base_url
 }
 
-module "bot" {
+module "service_account" {
   source  = "gitlab.com/corthx/service-account/gitlab"
-  version = "0.0.1"
+  version = "0.0.3"
 
   gitlab_base_url = local.gitlab_base_url
   project         = "corthx/portfolio"
@@ -34,9 +34,12 @@ module "bot" {
   token_rotate_before_days       = 14
   token_rotation_expiration_days = 180
 
-  ci_variable_token_name        = "GITLAB_TOFU_PROVIDER_ROTATOR_TOKEN"
-  ci_variable_token_hidden      = true
-  ci_variable_token_description = "Token used by CI to authenticate the Terraform provider for the main terraform provider token rotation"
+  ci_variable_token_name = "GITLAB_TOFU_PROVIDER_ROTATOR_TOKEN"
+  # Only the terraform-provider-bot jobs (environment = their state name)
+  # authenticate with this token.
+  ci_variable_token_environment_scope = "terraform-provider-bot"
+  ci_variable_token_hidden            = true
+  ci_variable_token_description       = "Token used by CI to authenticate the Terraform provider for the main terraform provider token rotation"
 
   avatar_path = "${path.module}/avatar.png"
 }

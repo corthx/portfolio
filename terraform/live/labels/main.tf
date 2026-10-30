@@ -19,9 +19,9 @@ provider "gitlab" {
   base_url = "https://gitlab.com"
 }
 
-module "labels" {
+module "project_labels" {
   source  = "gitlab.com/corthx/label/gitlab"
-  version = "0.0.1"
+  version = "0.0.3"
 
   project = local.project
 

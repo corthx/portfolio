@@ -15,9 +15,9 @@ provider "gitlab" {
   base_url = "https://gitlab.com"
 }
 
-module "boards" {
+module "issue_boards" {
   source  = "gitlab.com/corthx/issue-board/gitlab"
-  version = "0.0.2"
+  version = "0.0.3"
 
   scope   = "project"
   project = "corthx/portfolio"

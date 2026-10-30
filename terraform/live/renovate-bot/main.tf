@@ -23,9 +23,9 @@ provider "gitlab" {
   base_url = local.gitlab_base_url
 }
 
-module "bot" {
+module "service_account" {
   source  = "gitlab.com/corthx/service-account/gitlab"
-  version = "0.0.1"
+  version = "0.0.3"
 
   gitlab_base_url = local.gitlab_base_url
   project         = "corthx/portfolio"
