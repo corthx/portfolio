@@ -10,8 +10,9 @@
 # with the new token.
 #
 # The token variable moves from the "*" scope to the terraform-provider-bot
-# environment, the only jobs that use it: the "*" copy is deleted and the
-# hand-made copy already at that scope is adopted.
+# environment, the only jobs that use it: the hand-made copy already at that
+# scope is adopted. The "*" copy is only forgotten, since GitLab refuses to
+# delete it through the old project path; delete it by hand.
 
 removed {
   from = module.bot.gitlab_project_service_account_access_token.rotating
@@ -41,7 +42,7 @@ removed {
   from = module.bot.gitlab_project_variable.bot_token
 
   lifecycle {
-    destroy = true
+    destroy = false
   }
 }
 
