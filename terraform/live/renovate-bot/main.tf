@@ -38,10 +38,14 @@ module "bot" {
   token_rotate_before_days       = 14
   token_rotation_expiration_days = 180
 
+  # Protected: only the Renovate schedule on the default branch reads them,
+  # MR pipelines never need them.
   ci_variable_token_name        = "RENOVATE_TOKEN"
   ci_variable_token_hidden      = true
+  ci_variable_token_protected   = true
   ci_variable_token_description = "Token used by Renovate to authenticate on GitLab"
   ci_variable_email_name        = "RENOVATE_GIT_AUTHOR_EMAIL"
+  ci_variable_email_protected   = true
   ci_variable_email_description = "Email used by Renovate to commit"
 
   avatar_path = "${path.module}/avatar.png"
