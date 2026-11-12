@@ -2,26 +2,31 @@
 # Self-hosted Renovate, configured by renovate.json5 at the repository root.
 # Runs only on the `SCHEDULE_TASK=renovate` pipeline schedule
 # (terraform/live/pipeline-schedule-renovate); no other job matches that
-# schedule, so its pipeline runs this job alone.
+# schedule, so its pipeline runs this job alone. Renovate clones the repository
+# itself, so the runner's checkout is skipped.
 
 renovate:
   stage: maintenance
-  image:
-    name: renovate/renovate:44.138.0
-    entrypoint: [""]
   needs: []
   dependencies: []
   extends:
+    - .renovate-image
     - .default-retry
     - .not-interruptible
+    - .no-checkout
+  cache:
+    - !reference [".renovate-cache", cache]
   rules:
     - !reference [".renovate:rules", rules]
   variables:
     LOG_LEVEL: info
     RENOVATE_PLATFORM: gitlab
     RENOVATE_ENDPOINT: $CI_API_V4_URL
-    RENOVATE_AUTODISCOVER: false # Disable Renovate "scan every repo I can see" mode
     RENOVATE_REPOSITORIES: $CI_PROJECT_PATH
     RENOVATE_GIT_AUTHOR: "Renovate Bot <$RENOVATE_GIT_AUTHOR_EMAIL>"
+    # The config is committed, so no onboarding MR, and never fall back to
+    # Renovate's defaults if it disappears.
+    RENOVATE_ONBOARDING: "false"
+    RENOVATE_REQUIRE_CONFIG: required
   script:
     - renovate

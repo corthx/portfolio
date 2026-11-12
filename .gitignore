@@ -39,3 +39,6 @@ localhost.pem
 
 # Tests
 /tests-results/
+
+# Renovate cache (CI only)
+.renovate-cache/
