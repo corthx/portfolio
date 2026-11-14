@@ -10,9 +10,8 @@ default:
   #
   # entrypoint: [""] overrides the image's ENTRYPOINT (mise), otherwise the
   # runner would launch the job script as `mise <script>` and mise would reject
-  # it. Jobs that bring their own image (alpine for `license` and
-  # `deps-digest`, cypress for `test:e2e`, `.renovate-image` below for the
-  # Renovate jobs) override this.
+  # it. Jobs that bring their own image (alpine for `deps-digest`, cypress for
+  # `test:e2e`, `.renovate-image` below for the Renovate jobs) override this.
   image:
     name: jdxcode/mise:2026.10.3-debian
     entrypoint: [""]

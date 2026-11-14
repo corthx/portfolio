@@ -45,14 +45,6 @@
 
 # --- Change-pattern anchors (bare lists; aliased into a rule's `changes:`) ----
 
-.gitlab-ci-patterns: &gitlab-ci-patterns
-  - .gitlab-ci.yml
-  - .gitlab/ci/**/*
-
-.npm-dependencies-patterns: &npm-dependencies-patterns
-  - package.json
-  - package-lock.json
-
 .renovate-config-patterns: &renovate-config-patterns
   - renovate.json5
 
@@ -90,22 +82,6 @@
     - <<: *if-merge-request
     - <<: *if-default-branch
     - <<: *if-tag
-    - <<: *if-manual-run
-
-# The one job narrow enough to filter on: only the manifests (or this pipeline)
-# can change a license scan. BRANCH is overridden because $CI_COMMIT_BRANCH,
-# the job's default, is unset in a merge-request pipeline.
-.license:rules:
-  rules:
-    - <<: *if-merge-request
-      changes: *gitlab-ci-patterns
-      variables:
-        BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-    - <<: *if-merge-request
-      changes: *npm-dependencies-patterns
-      variables:
-        BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-    - <<: *if-default-branch
     - <<: *if-manual-run
 
 .generate-snapshot:rules:
