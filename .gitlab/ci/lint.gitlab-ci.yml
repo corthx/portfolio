@@ -27,3 +27,17 @@ lint:
       else
         mise run pre-commit:run:all
       fi
+
+lint:renovate-config:
+  stage: lint
+  needs: []
+  dependencies: []
+  extends:
+    - .renovate-image
+    - .default-retry
+    - .interruptible
+  rules:
+    - !reference [".lint:renovate-config:rules", rules]
+  script:
+    # --strict also fails on options Renovate would silently migrate.
+    - renovate-config-validator --strict

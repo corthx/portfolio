@@ -53,6 +53,9 @@
   - package.json
   - package-lock.json
 
+.renovate-config-patterns: &renovate-config-patterns
+  - renovate.json5
+
 .tofu-tofu-bot-patterns: &tofu-tofu-bot-patterns
   - terraform/live/tofu-bot/**/*
 
@@ -126,6 +129,14 @@
 .renovate:rules:
   rules:
     - <<: *if-schedule-renovate
+
+.lint:renovate-config:rules:
+  rules:
+    - <<: *if-merge-request
+      changes: *renovate-config-patterns
+    - <<: *if-default-branch
+      changes: *renovate-config-patterns
+    - <<: *if-manual-run
 
 .deps-digest:rules:
   rules:
