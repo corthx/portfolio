@@ -8,7 +8,7 @@ include:
     inputs:
       # Renovate bumps this input together with the include tag above because
       # of the trailing `# component version` comment
-      version: "4.9.0" # component version
+      version: "4.9.1" # component version
       use_rootless_image: true
       # keep in sync with mise.toml's opentofu pin. `# opentofu version` must
       # be the literal, exact trailing comment — it's what the
