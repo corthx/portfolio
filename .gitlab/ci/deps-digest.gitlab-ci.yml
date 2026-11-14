@@ -5,7 +5,7 @@
 # the DISCORD_DEPS_WEBHOOK_URL CI/CD variable.
 deps-digest:
   stage: maintenance
-  image: alpine:3.24.2
+  image: alpine:3.24.4
   needs: []
   dependencies: []
   extends:
