@@ -10,7 +10,7 @@ terraform {
       # 19.3.0 (19.1.0/19.2.0 had only the group-scoped token resource;
       # 19.0.0 had neither service account resource at all) — floor matches
       # the last of those to land, not just "19.x".
-      version = "19.4.1"
+      version = "19.5.0"
     }
   }
 }
