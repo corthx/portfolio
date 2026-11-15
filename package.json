@@ -34,7 +34,7 @@
     "@vesp/nuxt-fontawesome": "2.0.0",
     "@vueuse/nuxt": "14.0.0",
     "floating-vue": "5.2.2",
-    "nuxt": "4.5.1",
+    "nuxt": "4.6.2",
     "nuxt-anchorscroll": "1.0.5",
     "nuxt-gtag": "4.0.0",
     "nuxt-seo-utils": "8.1.11",
