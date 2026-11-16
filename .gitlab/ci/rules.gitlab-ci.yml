@@ -50,6 +50,8 @@
   # Pins the .renovate-image the validator runs in: a newer Renovate can flag
   # an unchanged config (e.g. a pending migration under --strict).
   - .gitlab/ci/global.gitlab-ci.yml
+  # Defines the lint:renovate-config job itself (script, flags, image).
+  - .gitlab/ci/lint.gitlab-ci.yml
 
 .tofu-tofu-bot-patterns: &tofu-tofu-bot-patterns
   - terraform/live/tofu-bot/**/*
