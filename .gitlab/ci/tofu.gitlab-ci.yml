@@ -4,18 +4,15 @@
 # GitLab-managed state backend (auto_define_backend → CI_JOB_TOKEN), so these
 # jobs don't use mise. fmt/validate are handled by the mise-driven lint job.
 include:
-  - component: $CI_SERVER_FQDN/components/opentofu/job-templates@4.9.0
+  - component: $CI_SERVER_FQDN/components/opentofu/job-templates@4.9.1
     inputs:
-      # Renovate bumps this input together with the include tag above because
-      # of the trailing `# component version` comment
-      version: "4.9.1" # component version
+      # Keep in sync with the include tag above (Renovate bumps both together).
+      # renovate: datasource=gitlab-tags depName=components/opentofu registryUrl=https://gitlab.com
+      version: "4.9.1"
       use_rootless_image: true
-      # keep in sync with mise.toml's opentofu pin. `# opentofu version` must
-      # be the literal, exact trailing comment — it's what the
-      # local>components/opentofu preset's regex manager matches on to bump
-      # this input; anything else (e.g. this note trailing instead) and
-      # Renovate silently never touches it.
-      opentofu_version: "1.12.6" # opentofu version
+      # Keep in sync with mise.toml's opentofu pin (Renovate bumps both together).
+      # renovate: datasource=github-releases depName=opentofu packageName=opentofu/opentofu
+      opentofu_version: "1.12.6"
       auto_define_backend: true
       auto_delete_state: true
       auto_encryption: true
