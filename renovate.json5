@@ -9,8 +9,10 @@
     "local>components/opentofu",
   ],
 
-  dependencyDashboard: true,
-  dependencyDashboardTitle: "Renovate Dependency Dashboard",
+  dependencyDashboard: {
+    enabled: true,
+    title: "Renovate Dependency Dashboard",
+  },
 
   // Commit subjects (and so MR titles) follow the commit-msg hook's
   // convention: "#<issue> :<gitmoji>: [<scope>] <description>", rendered as
