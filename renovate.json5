@@ -9,8 +9,10 @@
     "local>components/opentofu",
   ],
 
-  dependencyDashboard: true,
-  dependencyDashboardTitle: "Renovate Dependency Dashboard",
+  dependencyDashboard: {
+    enabled: true,
+    title: "Renovate Dependency Dashboard",
+  },
 
   // Commit subjects (and so MR titles) follow the commit-msg hook's
   // convention: "#<issue> :<gitmoji>: [<scope>] <description>", rendered as
@@ -91,6 +93,27 @@
       matchPackageNames: ["@rollup/rollup-*"],
       groupName: "rollup platform binaries",
       commitMessageTopic: "rollup platform binaries",
+    },
+    // Nuxt sets floors on vue and vue-router (`^x.y.z`) while we pin them
+    // exactly; a Nuxt bump that raises a floor alone makes npm nest a second
+    // copy under node_modules/nuxt, which drops the vue-i18n `$t` augmentation
+    // and fails the build type check. Automerge for patch/minor comes from the
+    // npm rule above, majors stay manual via the rule at the end.
+    // Must stay after the npm rule above: packageRules merge in order.
+    {
+      matchManagers: ["npm"],
+      matchPackageNames: ["nuxt", "vue", "vue-router"],
+      groupName: "nuxt and vue",
+      commitMessageTopic: "nuxt and vue",
+    },
+    // Security fixes are never grouped (see vulnerabilityAlerts below), so a
+    // nuxt vulnerability MR can still raise a floor alone: flag it in the MR.
+    {
+      matchManagers: ["npm"],
+      matchPackageNames: ["nuxt"],
+      prBodyNotes: [
+        "⚠️ If this MR does not also bump `vue` and `vue-router`, check `node_modules/nuxt/package.json` and bump them on this branch to satisfy Nuxt's floors, or `npm ls vue vue-router` shows a nested copy and the type check fails.",
+      ],
     },
 
     // --- CI images, mise tools, tofu ----------------------------------------
@@ -184,8 +207,10 @@
     schedule: ["at any time"],
     labels: ["security", "dependencies"],
     commitMessagePrefix: "#292 :lock: [npm]",
-    // Fixes are never grouped, but would otherwise inherit the npm group's
-    // topic and read "Upgrade npm non-major dependencies".
+    // Fixes are never grouped (Renovate forces groupName: null on them), but
+    // would otherwise inherit the npm group's topic and read "Upgrade npm
+    // non-major dependencies". A nuxt fix therefore never brings the matching
+    // vue bump: its MR carries the prBodyNotes warning set in packageRules.
     commitMessageTopic: "{{depName}}",
   },
 }
