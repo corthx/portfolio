@@ -47,6 +47,9 @@
 
 .renovate-config-patterns: &renovate-config-patterns
   - renovate.json5
+  # Pins the .renovate-image the validator runs in: a newer Renovate can flag
+  # an unchanged config (e.g. a pending migration under --strict).
+  - .gitlab/ci/global.gitlab-ci.yml
 
 .tofu-tofu-bot-patterns: &tofu-tofu-bot-patterns
   - terraform/live/tofu-bot/**/*
