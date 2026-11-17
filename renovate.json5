@@ -182,6 +182,17 @@
       commitMessageTopic: "node",
       commitMessagePrefix: "#292 :arrow_up: [node]",
     },
+    // npm is pinned twice: packageManager in package.json (the npm Renovate
+    // writes package-lock.json with) and npm:npm in mise.toml (the npm CI runs
+    // `npm ci` with). A mismatch makes Renovate's lock files fail `npm ci`, so
+    // one MR bumps both. Must stay after the npm and mise rules: packageRules
+    // merge in order.
+    {
+      matchDepNames: ["npm"],
+      groupName: "npm",
+      commitMessageTopic: "npm",
+      commitMessagePrefix: "#292 :arrow_up: [npm]",
+    },
     // OpenTofu (mise.toml, mirrored in the component's opentofu_version input)
     // and the OpenTofu CI component (include ref, mirrored in its version
     // input) move in one MR: each component release only accepts a fixed
