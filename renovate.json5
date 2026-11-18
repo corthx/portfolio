@@ -6,6 +6,7 @@
   dependencyDashboard: {
     enabled: true,
     title: "Renovate Dependency Dashboard",
+    labels: ["dependencies"],
   },
 
   // Commit subjects (and so MR titles) follow the commit-msg hook's
