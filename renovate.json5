@@ -10,13 +10,12 @@
   },
 
   // Commit subjects (and so MR titles) follow the commit-msg hook's
-  // convention: "#<issue> :<gitmoji>: [<scope>] <description>", rendered as
-  // "#292 :arrow_up: [npm] Upgrade ws to 8.21.1".
-  // The issue key is hardcoded to the Renovate dependency dashboard issue
-  // (#292) because Renovate exposes no template field for its IID. Every
-  // `#292` in this file must be updated together if the dashboard issue is
-  // ever recreated with a new IID.
-  commitMessagePrefix: "#292 :arrow_up: [npm]",
+  // convention minus the issue key: ":<gitmoji>: [<scope>] <description>",
+  // rendered as ":arrow_up: [npm] Upgrade ws to 8.21.1". Referencing the
+  // dependency dashboard issue would add a "mentioned in" note to it on every
+  // Renovate commit; the hooks never run on Renovate's commits and no CI job
+  // lints MR titles, so nothing requires the key.
+  commitMessagePrefix: ":arrow_up: [npm]",
   commitMessageAction: "Upgrade",
   commitMessageTopic: "{{depName}}",
   commitMessageExtra: "to {{newVersion}}",
@@ -76,15 +75,15 @@
     // --- Commit scopes, one per manager -------------------------------------
     {
       matchManagers: ["gitlabci", "gitlabci-include", "custom.regex"],
-      commitMessagePrefix: "#292 :arrow_up: [GitLab CI]",
+      commitMessagePrefix: ":arrow_up: [GitLab CI]",
     },
     {
       matchManagers: ["mise"],
-      commitMessagePrefix: "#292 :arrow_up: [mise]",
+      commitMessagePrefix: ":arrow_up: [mise]",
     },
     {
       matchManagers: ["terraform"],
-      commitMessagePrefix: "#292 :arrow_up: [tofu]",
+      commitMessagePrefix: ":arrow_up: [tofu]",
     },
 
     // --- npm ----------------------------------------------------------------
@@ -181,7 +180,7 @@
       matchDepNames: ["node", "cypress/base"],
       groupName: "node",
       commitMessageTopic: "node",
-      commitMessagePrefix: "#292 :arrow_up: [node]",
+      commitMessagePrefix: ":arrow_up: [node]",
     },
     // npm is pinned twice: packageManager in package.json (the npm Renovate
     // writes package-lock.json with) and npm:npm in mise.toml (the npm CI runs
@@ -192,7 +191,7 @@
       matchDepNames: ["npm"],
       groupName: "npm",
       commitMessageTopic: "npm",
-      commitMessagePrefix: "#292 :arrow_up: [npm]",
+      commitMessagePrefix: ":arrow_up: [npm]",
     },
     // OpenTofu (mise.toml, mirrored in the component's opentofu_version input)
     // and the OpenTofu CI component (include ref, mirrored in its version
@@ -207,7 +206,7 @@
       matchDepNames: ["opentofu", "components/opentofu"],
       groupName: "opentofu",
       commitMessageTopic: "opentofu",
-      commitMessagePrefix: "#292 :arrow_up: [tofu]",
+      commitMessagePrefix: ":arrow_up: [tofu]",
       separateMajorMinor: false,
       minimumReleaseAge: "7 days",
       addLabels: ["tofu:plan"],
@@ -233,7 +232,7 @@
     enabled: true,
     schedule: ["at any time"],
     labels: ["security", "dependencies"],
-    commitMessagePrefix: "#292 :lock: [npm]",
+    commitMessagePrefix: ":lock: [npm]",
     // Fixes are never grouped (Renovate forces groupName: null on them), but
     // would otherwise inherit the npm group's topic and read "Upgrade npm
     // non-major dependencies". A nuxt fix therefore never brings the matching
