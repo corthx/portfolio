@@ -2,7 +2,7 @@
   "name": "portfolio-corentin-hervaud",
   "private": true,
   "type": "module",
-  "packageManager": "npm@11.21.2",
+  "packageManager": "npm@11.21.3",
   "scripts": {
     "build": "nuxt build",
     "build:preview": "nuxt preview",
