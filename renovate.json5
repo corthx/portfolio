@@ -9,16 +9,12 @@
     labels: ["dependencies"],
   },
 
-  // Commit subjects (and so MR titles) follow the commit-msg hook's
-  // convention minus the issue key: ":<gitmoji>: [<scope>] <description>",
-  // rendered as ":arrow_up: [npm] Upgrade ws to 8.21.1". Referencing the
-  // dependency dashboard issue would add a "mentioned in" note to it on every
-  // Renovate commit; the hooks never run on Renovate's commits and no CI job
-  // lints MR titles, so nothing requires the key.
-  commitMessagePrefix: ":arrow_up: [npm]",
-  commitMessageAction: "Upgrade",
-  commitMessageTopic: "{{depName}}",
-  commitMessageExtra: "to {{newVersion}}",
+  // "chore(deps): update <dep> to <version>", as in the other projects.
+  // Renovate's commits don't follow this repo's gitmoji convention: it is
+  // only enforced by the local commit-msg hook, which never runs on them.
+  semanticCommits: "enabled",
+  semanticCommitType: "chore",
+  semanticCommitScope: "deps",
 
   commitBodyTable: true,
 
@@ -72,20 +68,6 @@
   ],
 
   packageRules: [
-    // --- Commit scopes, one per manager -------------------------------------
-    {
-      matchManagers: ["gitlabci", "gitlabci-include", "custom.regex"],
-      commitMessagePrefix: ":arrow_up: [GitLab CI]",
-    },
-    {
-      matchManagers: ["mise"],
-      commitMessagePrefix: ":arrow_up: [mise]",
-    },
-    {
-      matchManagers: ["terraform"],
-      commitMessagePrefix: ":arrow_up: [tofu]",
-    },
-
     // --- npm ----------------------------------------------------------------
     // Pins stay manual: the first run's pin MR rewrites every range in
     // package.json and deserves a review.
@@ -93,7 +75,6 @@
       matchManagers: ["npm"],
       matchUpdateTypes: ["patch", "minor"],
       groupName: "npm non-major dependencies",
-      commitMessageTopic: "npm non-major dependencies",
       automerge: true,
       automergeType: "pr",
       platformAutomerge: true,
@@ -105,7 +86,6 @@
       matchManagers: ["npm"],
       matchPackageNames: ["@rollup/rollup-*"],
       groupName: "rollup platform binaries",
-      commitMessageTopic: "rollup platform binaries",
     },
     // Nuxt sets floors on vue and vue-router (`^x.y.z`) while we pin them
     // exactly; a Nuxt bump that raises a floor alone makes npm nest a second
@@ -117,7 +97,6 @@
       matchManagers: ["npm"],
       matchPackageNames: ["nuxt", "vue", "vue-router"],
       groupName: "nuxt and vue",
-      commitMessageTopic: "nuxt and vue",
     },
     // Security fixes are never grouped (see vulnerabilityAlerts below), so a
     // nuxt vulnerability MR can still raise a floor alone: flag it in the MR.
@@ -133,7 +112,6 @@
     {
       matchManagers: ["mise"],
       groupName: "mise tools",
-      commitMessageTopic: "mise tools",
     },
     // A grouped branch automerges only when every dep in it is automergeable,
     // so one "pin" would otherwise hold back the whole "mise tools" group.
@@ -147,7 +125,6 @@
     {
       matchManagers: ["gitlabci", "gitlabci-include"],
       groupName: "CI Images",
-      commitMessageTopic: "CI Images",
     },
     {
       matchManagers: ["custom.regex"],
@@ -179,8 +156,6 @@
       matchManagers: ["mise", "gitlabci"],
       matchDepNames: ["node", "cypress/base"],
       groupName: "node",
-      commitMessageTopic: "node",
-      commitMessagePrefix: ":arrow_up: [node]",
     },
     // npm is pinned twice: packageManager in package.json (the npm Renovate
     // writes package-lock.json with) and npm:npm in mise.toml (the npm CI runs
@@ -190,8 +165,6 @@
     {
       matchDepNames: ["npm"],
       groupName: "npm",
-      commitMessageTopic: "npm",
-      commitMessagePrefix: ":arrow_up: [npm]",
     },
     // OpenTofu (mise.toml, mirrored in the component's opentofu_version input)
     // and the OpenTofu CI component (include ref, mirrored in its version
@@ -205,8 +178,6 @@
     {
       matchDepNames: ["opentofu", "components/opentofu"],
       groupName: "opentofu",
-      commitMessageTopic: "opentofu",
-      commitMessagePrefix: ":arrow_up: [tofu]",
       separateMajorMinor: false,
       minimumReleaseAge: "7 days",
       addLabels: ["tofu:plan"],
@@ -232,11 +203,8 @@
     enabled: true,
     schedule: ["at any time"],
     labels: ["security", "dependencies"],
-    commitMessagePrefix: ":lock: [npm]",
-    // Fixes are never grouped (Renovate forces groupName: null on them), but
-    // would otherwise inherit the npm group's topic and read "Upgrade npm
-    // non-major dependencies". A nuxt fix therefore never brings the matching
-    // vue bump: its MR carries the prBodyNotes warning set in packageRules.
-    commitMessageTopic: "{{depName}}",
+    // Fixes are never grouped (Renovate forces groupName: null on them), so a
+    // nuxt fix never brings the matching vue bump: its MR carries the
+    // prBodyNotes warning set in packageRules.
   },
 }
