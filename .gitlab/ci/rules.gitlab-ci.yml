@@ -80,14 +80,44 @@
 .tofu-terraform-provider-rotator-bot-patterns: &tofu-terraform-provider-rotator-bot-patterns
   - terraform/live/terraform-provider-rotator-bot/**/*
 
+# A change to the toolchain, the lint job or a linter config re-lints the whole
+# repo: a diff-only run would skip the hooks of a tool bumped on its own.
+# package.json pins eslint, prettier and their plugins.
+.lint-toolchain-patterns: &lint-toolchain-patterns
+  - mise.toml
+  - mise.ci.toml
+  - .mise/**/*
+  - .pre-commit-config.yaml
+  - .gitlab/ci/global.gitlab-ci.yml
+  - .gitlab/ci/lint.gitlab-ci.yml
+  - package.json
+  - package-lock.json
+  - eslint.config.mjs
+  - .prettierrc.json
+  - .markdownlint-cli2.jsonc
+  - .yamllint.yaml
+  - terraform/.tflint.hcl
+
 # --- Composite rule sets (the public API — `!reference` these from jobs) ------
 
 .lint:rules:
   rules:
     - <<: *if-merge-request
+      changes: *lint-toolchain-patterns
+      variables:
+        LINT_TASK: "pre-commit:run:all"
+    - <<: *if-merge-request
+      variables:
+        LINT_TASK: "pre-commit:run -- $CI_MERGE_REQUEST_DIFF_BASE_SHA $CI_COMMIT_SHA"
     - <<: *if-default-branch
+      variables:
+        LINT_TASK: "pre-commit:run:all"
     - <<: *if-tag
+      variables:
+        LINT_TASK: "pre-commit:run:all"
     - <<: *if-manual-run
+      variables:
+        LINT_TASK: "pre-commit:run:all"
 
 .generate-snapshot:rules:
   rules:
