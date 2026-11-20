@@ -21,6 +21,8 @@ variables:
   # CI_PROJECT_DIR and therefore impossible for GitLab CI to cache.
   MISE_DATA_DIR: $CI_PROJECT_DIR/.mise-data
   PRE_COMMIT_HOME: $CI_PROJECT_DIR/.pre-commit-data
+  # tflint's plugin dir defaults to ~/.tflint.d/plugins, same issue.
+  TFLINT_PLUGIN_DIR: $CI_PROJECT_DIR/.tflint-data
   # Renovate reads it as its cacheDir.
   RENOVATE_CACHE_DIR: $CI_PROJECT_DIR/.renovate-cache
   # Loads mise.ci.toml on top of mise.toml, and leaves mise.dev.toml
@@ -102,6 +104,20 @@ variables:
         - .pre-commit-config.yaml
     paths:
       - $PRE_COMMIT_HOME/
+    policy: pull-push
+
+# Rulesets fetched by `tflint --init` from the GitHub API, unauthenticated.
+# Uncached, every lint job spends one of the 60 requests/hour GitHub allows the
+# runner's IP, and the job fails once they run out. Keyed on .tflint.hcl, so
+# GitHub is only hit again when Renovate bumps a ruleset.
+.tflint-cache:
+  cache:
+    key:
+      files:
+        - terraform/.tflint.hcl
+      prefix: tflint
+    paths:
+      - $TFLINT_PLUGIN_DIR/
     policy: pull-push
 
 .npm-cache:
