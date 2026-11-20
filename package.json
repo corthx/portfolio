@@ -46,8 +46,8 @@
     "tailwindcss": "4.1.11",
     "tailwindcss-primeui": "0.6.1",
     "v-gsap-nuxt": "1.4.4",
-    "vue": "3.5.45",
-    "vue-router": "5.3.1"
+    "vue": "3.5.46",
+    "vue-router": "5.5.1"
   },
   "devDependencies": {
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
