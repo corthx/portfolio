@@ -27,6 +27,10 @@
   // queues legitimate updates under "Rate-Limited" on the dashboard.
   prHourlyLimit: 0,
 
+  // Leaves a week for a broken or compromised release to be caught and pulled
+  // before it reaches us. Security fixes opt out in vulnerabilityAlerts.
+  minimumReleaseAge: "7 days",
+
   // The lockfile already pins the real resolution; exact ranges make each
   // MR diff show the version that actually changed.
   rangeStrategy: "pin",
@@ -132,7 +136,6 @@
       automerge: true,
       automergeType: "pr",
       platformAutomerge: true,
-      minimumReleaseAge: "7 days",
     },
     {
       matchManagers: ["terraform"],
@@ -140,7 +143,6 @@
       automerge: true,
       automergeType: "pr",
       platformAutomerge: true,
-      minimumReleaseAge: "7 days",
     },
     // Modules provision the tokens CI authenticates with; a bad bump locks
     // the pipeline out of the project.
@@ -171,15 +173,13 @@
     // input) move in one MR: each component release only accepts a fixed
     // list of opentofu_version values, so bumping either alone fails pipeline
     // creation. separateMajorMinor: false stops a component major from being
-    // split off an OpenTofu minor, and one minimumReleaseAge keeps both halves
-    // in step. Changing tofu.gitlab-ci.yml alone plans no unit, so the
-    // tofu:plan label makes the MR plan them all. Must stay after the mise and
-    // CI Images rules: packageRules merge in order.
+    // split off an OpenTofu minor. Changing tofu.gitlab-ci.yml alone plans no
+    // unit, so the tofu:plan label makes the MR plan them all. Must stay after
+    // the mise and CI Images rules: packageRules merge in order.
     {
       matchDepNames: ["opentofu", "components/opentofu"],
       groupName: "opentofu",
       separateMajorMinor: false,
-      minimumReleaseAge: "7 days",
       addLabels: ["tofu:plan"],
     },
     {
@@ -201,6 +201,11 @@
   osvVulnerabilityAlerts: true,
   vulnerabilityAlerts: {
     enabled: true,
+    // Fixes go out as soon as they are found: no 7-day wait, and the limits
+    // that hold back regular updates don't apply.
+    minimumReleaseAge: null,
+    prConcurrentLimit: 0,
+    branchConcurrentLimit: 0,
     schedule: ["at any time"],
     labels: ["security", "dependencies"],
     // Fixes are never grouped (Renovate forces groupName: null on them), so a
