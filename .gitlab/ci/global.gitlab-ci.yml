@@ -13,7 +13,7 @@ default:
   # it. Jobs that bring their own image (alpine for `deps-digest`, cypress for
   # `test:e2e`, `.renovate-image` below for the Renovate jobs) override this.
   image:
-    name: jdxcode/mise:2026.11.10-debian
+    name: jdxcode/mise:2026.11.11-debian
     entrypoint: [""]
 
 variables:
@@ -52,7 +52,7 @@ variables:
 # entrypoint: [""] for the same reason as the default image above.
 .renovate-image:
   image:
-    name: renovate/renovate:44.255.2
+    name: renovate/renovate:44.257.6
     entrypoint: [""]
 
 # Per-job tool sets. Adding a tool to mise.toml does not make it available to a
