@@ -52,7 +52,7 @@ module "labels" {
       color = "#ed9121",
     },
     "security" = {
-      description = "Pull requests that address a security vulnerability",
+      description = "Address a security vulnerability",
       color       = "#ee0701",
     },
     "severity:critical" = {
