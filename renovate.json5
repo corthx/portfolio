@@ -1,66 +1,46 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-
-  extends: ["config:recommended", ":dependencyDashboard"],
+  extends: ["config:recommended"],
 
   dependencyDashboard: {
     enabled: true,
     title: "Renovate Dependency Dashboard",
+    // The top-level `labels` only applies to MRs.
     labels: ["dependencies"],
   },
-
-  // "chore(deps): update <dep> to <version>", as in the other projects.
-  // Renovate's commits don't follow this repo's gitmoji convention: it is
-  // only enforced by the local commit-msg hook, which never runs on them.
+  labels: ["dependencies"],
+  timezone: "Europe/Paris",
   semanticCommits: "enabled",
   semanticCommitType: "chore",
   semanticCommitScope: "deps",
-
   commitBodyTable: true,
-
+  // Renovate's default, spelled out: the MR lints, where a repo has them,
+  // recognize Renovate's branches by this prefix.
   branchPrefix: "renovate/",
-  labels: ["dependencies"],
-  rebaseWhen: "behind-base-branch",
-  prConcurrentLimit: 10,
-  // Disable hourly rate limiting; prConcurrentLimit already caps how
-  // many MRs can be open at once, so the default prHourlyLimit: 2 just
-  // queues legitimate updates under "Rate-Limited" on the dashboard.
-  prHourlyLimit: 0,
 
+  prConcurrentLimit: 10,
+  // prConcurrentLimit already caps open MRs; the default prHourlyLimit only
+  // parks updates under "Rate-Limited".
+  prHourlyLimit: 0,
   // Leaves a week for a broken or compromised release to be caught and pulled
   // before it reaches us. Security fixes opt out in vulnerabilityAlerts.
   minimumReleaseAge: "7 days",
 
-  // The lockfile already pins the real resolution; exact ranges make each
-  // MR diff show the version that actually changed.
   rangeStrategy: "pin",
+  lockFileMaintenance: {
+    enabled: true,
+  },
 
-  // Lets the gitlabci manager resolve the OpenTofu component's
-  // `$CI_SERVER_FQDN/...` include ref.
   gitlabci: {
+    // Resolves `$CI_SERVER_FQDN/...` component includes.
     registryAliases: {
       $CI_SERVER_FQDN: "gitlab.com",
     },
   },
 
-  // Renovate ships no native manager for GitLab CI components, so track
-  // them via a regex manager backed by the gitlab-tags datasource.
   customManagers: [
-    {
-      customType: "regex",
-      managerFilePatterns: ["(^|/)\\.gitlab/ci/.*\\.ya?ml$", "(^|/)\\.gitlab-ci\\.ya?ml$"],
-      matchStrings: [
-        // `$` excluded from the host class: variable hosts are skipped, not
-        // captured into the unresolvable `https://$CI_SERVER_FQDN`.
-        "component:\\s+(?<registryUrl>[^/\\s$]+)/(?<depName>[^@\\s]+)@(?<currentValue>[^\\s]+)",
-      ],
-      datasourceTemplate: "gitlab-tags",
-      registryUrlTemplate: "https://{{registryUrl}}",
-      versioningTemplate: "semver",
-    },
-    // Values pinned next to a `# renovate:` comment, for versions written
-    // twice (the OpenTofu component's inputs mirror its include ref and the
-    // mise.toml opentofu pin).
+    // Versions written twice (e.g. a component input mirroring a mise.toml pin)
+    // carry a `# renovate:` comment so the second copy moves too.
     {
       customType: "regex",
       managerFilePatterns: ["/^\\.gitlab/ci/.+\\.gitlab-ci\\.yml$/"],
@@ -72,38 +52,85 @@
   ],
 
   packageRules: [
-    // --- npm ----------------------------------------------------------------
-    // Pins stay manual: the first run's pin MR rewrites every range in
-    // package.json and deserves a review.
+    // --- Automerge baseline ---------------------------------------------------
+    {
+      matchUpdateTypes: ["patch", "minor", "pin", "digest"],
+      automerge: true,
+    },
+    {
+      matchUpdateTypes: ["major"],
+      automerge: false,
+    },
+    // Modules provision the tokens CI authenticates with: a bad bump locks the
+    // pipeline out of the project.
+    {
+      matchManagers: ["terraform"],
+      matchDepTypes: ["module"],
+      automerge: false,
+    },
+    // OpenTofu is the engine every unit plans and applies with: only its
+    // patches merge on their own.
+    {
+      matchManagers: ["mise", "custom.regex"],
+      matchDepNames: ["opentofu"],
+      matchUpdateTypes: ["minor", "major"],
+      automerge: false,
+    },
+    // Renovate looks `required_version` up among Terraform releases, but the
+    // units run OpenTofu, whose versions don't follow Terraform's.
+    {
+      matchManagers: ["terraform"],
+      matchDepTypes: ["required_version"],
+      enabled: false,
+    },
+
+    // --- Groups ---------------------------------------------------------------
+    {
+      matchManagers: ["mise"],
+      groupName: "mise tools",
+    },
+    {
+      matchManagers: ["gitlabci", "gitlabci-include"],
+      groupName: "CI Images",
+    },
     {
       matchManagers: ["npm"],
       matchUpdateTypes: ["patch", "minor"],
       groupName: "npm non-major dependencies",
-      automerge: true,
-      automergeType: "pr",
-      platformAutomerge: true,
     },
-    // Pinned in optionalDependencies to work around npm's optional dependencies
-    // bug (npm/cli#4828). They must move in lockstep, so one MR bumps them all.
-    // Must stay after the npm rule above: packageRules merge in order.
+    // OpenTofu (mise.toml, mirrored in the component's opentofu_version input)
+    // and the OpenTofu CI component (include ref, mirrored in its version
+    // input) move in one MR: each component release only accepts a fixed list
+    // of opentofu_version values, so bumping either alone fails pipeline
+    // creation, and separateMajorMinor: false keeps a component major with an
+    // OpenTofu minor. Changing tofu.gitlab-ci.yml alone plans no unit, hence
+    // tofu:plan. Must stay after the groups above to win.
+    {
+      matchDepNames: ["opentofu", "components/opentofu"],
+      groupName: "opentofu",
+      separateMajorMinor: false,
+      addLabels: ["tofu:plan"],
+    },
+
+    // --- Repo-specific --------------------------------------------------------
+    // Pinned in optionalDependencies to work around npm/cli#4828, so they must
+    // move in lockstep.
     {
       matchManagers: ["npm"],
       matchPackageNames: ["@rollup/rollup-*"],
       groupName: "rollup platform binaries",
     },
-    // Nuxt sets floors on vue and vue-router (`^x.y.z`) while we pin them
-    // exactly; a Nuxt bump that raises a floor alone makes npm nest a second
-    // copy under node_modules/nuxt, which drops the vue-i18n `$t` augmentation
-    // and fails the build type check. Automerge for patch/minor comes from the
-    // npm rule above, majors stay manual via the rule at the end.
-    // Must stay after the npm rule above: packageRules merge in order.
+    // Nuxt sets floors on vue and vue-router (`^x.y.z`) while we pin them; a
+    // Nuxt bump that raises a floor alone makes npm nest a second copy under
+    // node_modules/nuxt, which drops the vue-i18n `$t` augmentation and fails
+    // the type check.
     {
       matchManagers: ["npm"],
       matchPackageNames: ["nuxt", "vue", "vue-router"],
       groupName: "nuxt and vue",
     },
-    // Security fixes are never grouped (see vulnerabilityAlerts below), so a
-    // nuxt vulnerability MR can still raise a floor alone: flag it in the MR.
+    // Security fixes are never grouped, so a nuxt fix can still raise a floor
+    // alone.
     {
       matchManagers: ["npm"],
       matchPackageNames: ["nuxt"],
@@ -111,49 +138,8 @@
         "⚠️ If this MR does not also bump `vue` and `vue-router`, check `node_modules/nuxt/package.json` and bump them on this branch to satisfy Nuxt's floors, or `npm ls vue vue-router` shows a nested copy and the type check fails.",
       ],
     },
-
-    // --- CI images, mise tools, tofu ----------------------------------------
-    {
-      matchManagers: ["mise"],
-      groupName: "mise tools",
-    },
-    // A grouped branch automerges only when every dep in it is automergeable,
-    // so one "pin" would otherwise hold back the whole "mise tools" group.
-    {
-      matchManagers: ["mise", "gitlabci", "gitlabci-include"],
-      matchUpdateTypes: ["pin", "patch", "minor"],
-      automerge: true,
-      automergeType: "pr",
-      platformAutomerge: true,
-    },
-    {
-      matchManagers: ["gitlabci", "gitlabci-include"],
-      groupName: "CI Images",
-    },
-    {
-      matchManagers: ["custom.regex"],
-      matchUpdateTypes: ["patch", "minor"],
-      automerge: true,
-      automergeType: "pr",
-      platformAutomerge: true,
-    },
-    {
-      matchManagers: ["terraform"],
-      matchDepTypes: ["required_provider"],
-      automerge: true,
-      automergeType: "pr",
-      platformAutomerge: true,
-    },
-    // Modules provision the tokens CI authenticates with; a bad bump locks
-    // the pipeline out of the project.
-    {
-      matchManagers: ["terraform"],
-      matchDepTypes: ["module"],
-      automerge: false,
-    },
-    // cypress/base tags are Node versions: keep test:e2e on the Node that
-    // mise installs for every other job. Must stay after the mise and CI
-    // Images rules: packageRules merge in order.
+    // cypress/base tags are Node versions: keep test:e2e on the Node that mise
+    // installs for every other job.
     {
       matchManagers: ["mise", "gitlabci"],
       matchDepNames: ["node", "cypress/base"],
@@ -161,43 +147,14 @@
     },
     // npm is pinned twice: packageManager in package.json (the npm Renovate
     // writes package-lock.json with) and npm:npm in mise.toml (the npm CI runs
-    // `npm ci` with). A mismatch makes Renovate's lock files fail `npm ci`, so
-    // one MR bumps both. Must stay after the npm and mise rules: packageRules
-    // merge in order.
+    // `npm ci` with). A mismatch makes Renovate's lock files fail `npm ci`.
     {
-      matchDepNames: ["npm"],
+      matchDepNames: ["npm", "npm:npm"],
       groupName: "npm",
-    },
-    // OpenTofu (mise.toml, mirrored in the component's opentofu_version input)
-    // and the OpenTofu CI component (include ref, mirrored in its version
-    // input) move in one MR: each component release only accepts a fixed
-    // list of opentofu_version values, so bumping either alone fails pipeline
-    // creation. separateMajorMinor: false stops a component major from being
-    // split off an OpenTofu minor. Changing tofu.gitlab-ci.yml alone plans no
-    // unit, so the tofu:plan label makes the MR plan them all. Must stay after
-    // the mise and CI Images rules: packageRules merge in order.
-    {
-      matchDepNames: ["opentofu", "components/opentofu"],
-      groupName: "opentofu",
-      separateMajorMinor: false,
-      addLabels: ["tofu:plan"],
-    },
-    {
-      matchManagers: ["mise", "custom.regex"],
-      matchDepNames: ["opentofu"],
-      matchUpdateTypes: ["minor", "major"],
-      automerge: false,
-    },
-
-    // Majors always manual, regardless of manager.
-    {
-      matchUpdateTypes: ["major"],
-      automerge: false,
     },
   ],
 
-  // GitLab exposes no vulnerability alerts to Renovate; OSV is the source,
-  // and its fixes get the vulnerabilityAlerts settings below.
+  // GitLab exposes no vulnerability alerts to Renovate, so OSV is the source.
   osvVulnerabilityAlerts: true,
   vulnerabilityAlerts: {
     enabled: true,
@@ -208,8 +165,5 @@
     branchConcurrentLimit: 0,
     schedule: ["at any time"],
     labels: ["security", "dependencies"],
-    // Fixes are never grouped (Renovate forces groupName: null on them), so a
-    // nuxt fix never brings the matching vue bump: its MR carries the
-    // prBodyNotes warning set in packageRules.
   },
 }
