@@ -52,7 +52,7 @@ variables:
 # entrypoint: [""] for the same reason as the default image above.
 .renovate-image:
   image:
-    name: renovate/renovate:44.257.6
+    name: renovate/renovate:44.257.7
     entrypoint: [""]
 
 # Per-job tool sets. Adding a tool to mise.toml does not make it available to a
