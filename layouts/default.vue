@@ -6,6 +6,7 @@ const displayLanguageSwitcher = ref<boolean>(false);
 const displayThemeSwitcher = ref<boolean>(false);
 
 const head = useLocaleHead();
+useHead(() => ({ link: head.value.link, meta: head.value.meta }));
 const config = useConfig();
 
 onMounted(() => {
@@ -24,9 +25,6 @@ onMounted(() => {
     <Head>
       <Link rel="shortcut icon" href="/favicon.ico" />
       <Link rel="manifest" href="/site.webmanifest" />
-      <template v-for="link in head.link" :key="link.hid">
-        <Link :id="link.hid" :rel="link.rel" :href="link.href" :hreflang="link.hreflang" />
-      </template>
       <Meta :content="config.seo.description.default" name="description" />
       <Meta :content="config.seo.description.default" property="og:description" />
       <Meta :content="config.seo.description.default" name="twitter:description" />
@@ -36,9 +34,6 @@ onMounted(() => {
       <Meta :content="config.seo.color" name="msapplication-TileColor" />
       <Meta :content="config.seo.image" name="msapplication-TileImage" />
       <Meta :content="config.seo.color" name="theme-color" />
-      <template v-for="meta in head.meta" :key="meta.hid">
-        <Meta :id="meta.hid" :property="meta.property" :content="meta.content" />
-      </template>
     </Head>
     <Body>
       <EyesPopup
