@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { NuxtLinkProps } from "#app";
+import type { RouteLocationNamedI18n } from "vue-router";
 
-defineProps<NuxtLinkProps>();
+// NuxtLinkLocale only accepts i18n routes in `to`.
+defineProps<Omit<NuxtLinkProps, "to"> & { to?: RouteLocationNamedI18n }>();
 </script>
 
 <template>
