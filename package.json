@@ -50,7 +50,7 @@
     "vue-router": "5.5.1"
   },
   "devDependencies": {
-    "@fortawesome/free-solid-svg-icons": "^7.0.0",
+    "@fortawesome/free-solid-svg-icons": "7.3.1",
     "@nuxt/eslint": "1.17.0",
     "@vue/tsconfig": "0.9.1",
     "cypress": "15.21.2",
